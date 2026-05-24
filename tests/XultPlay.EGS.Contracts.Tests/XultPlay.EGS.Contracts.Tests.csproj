@@ -23,6 +23,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+
+    <!--
+      Test-only dependency. Pulled in for the RedisStream wire-compatibility
+      tests (API ref §8 test #11 / Q8). The library itself ships with NO
+      runtime dependencies; this reference lives only in the test project.
+    -->
+    <PackageReference Include="XultPlay.RedisStream" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
