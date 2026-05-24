@@ -1,0 +1,77 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisMode>All</AnalysisMode>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!--
+      Explicit NoWarn for analyzer rules that CONTRADICT the GameBackend
+      Coding Standards v1.0 §1.1, or that are not required by the standards:
+
+        SA1633 — File header (NOT required by the standards)
+        SA1309 — Field names should not begin with underscore (CONTRADICTS §1.1
+                 which REQUIRES the underscore prefix on private fields)
+        SA1101 — Prefix local calls with this. (modern C# convention)
+        SA1200 — Using directives must be inside namespace (the standards put
+                 them OUTSIDE)
+        SA1413 — Trailing comma in multi-line initializers (style preference)
+        SA1124 — Do not use regions
+        SA1649 — File name must match first type name including generic arity
+                 (i.e. would force IMessageHandler{TMessage}.cs — common
+                 practice is plain IMessageHandler.cs)
+        CA1204 — Static members should appear before instance members (purely
+                 cosmetic; readability is harmed by mechanical reordering)
+        CA1031 — Do not catch general exception types (intentionally violated
+                 in top-level resilience loops where catching everything is
+                 correct: the consumer must not crash on a single bad message)
+        CA1707 — Identifiers should not contain underscores (CONTRADICTS the
+                 _camelCase private-field rule and Method_Scenario_Expected
+                 test naming rule)
+        SA0001 — XML comment analysis disabled (samples and tests intentionally
+                 set GenerateDocumentationFile=false; this warning fires when
+                 StyleCop is enabled without XML doc generation, which is
+                 exactly our setup for those projects)
+        CS1591 — Missing XML doc comment on public type (only the library
+                 enforces docs; samples and tests opt out separately)
+        SA1202 — 'public' should come before 'private' member ordering
+                 (StyleCop equivalent to CA1204; not in §1.1 of the standards)
+        SA1204 — Static elements before instance elements (StyleCop equivalent
+                 to CA1204; pure cosmetics)
+    -->
+    <NoWarn>$(NoWarn);SA0001;SA1633;SA1309;SA1101;SA1200;SA1413;SA1124;SA1649;SA1202;SA1204;CA1204;CA1031;CA1707</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package Metadata">
+    <Authors>XultPlay</Authors>
+    <Company>XultPlay</Company>
+    <Product>XultPlay.RedisStream</Product>
+    <Copyright>Copyright © XultPlay</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      StyleCop ships as a NuGet package (not in the SDK) so we reference it explicitly.
+      Microsoft.CodeAnalysis.NetAnalyzers is intentionally NOT referenced here — the
+      .NET SDK already includes it automatically when <AnalysisMode>All</AnalysisMode>
+      is set, and pinning a specific version conflicts with newer SDKs (CI runners may
+      ship .NET 9/10 analyzers, which complain about the older package version).
+    -->
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+</Project>
