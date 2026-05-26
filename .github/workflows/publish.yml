@@ -24,13 +24,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - name: Add GitHub Packages NuGet source
-        run: |
-          dotnet nuget add source "${{ env.GITHUB_PACKAGES_URL }}" \
-            --name github-xultplay \
-            --username ${{ github.actor }} \
-            --password ${{ secrets.GITHUB_TOKEN }} \
-            --store-password-in-clear-text
+          source-url: ${{ env.GITHUB_PACKAGES_URL }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: dotnet restore ${{ env.SOLUTION }}
       - run: dotnet format ${{ env.SOLUTION }} --verify-no-changes --no-restore
       - run: dotnet build ${{ env.SOLUTION }} --configuration ${{ env.CONFIGURATION }} --no-restore -warnaserror
@@ -46,13 +42,9 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-      - name: Add GitHub Packages NuGet source
-        run: |
-          dotnet nuget add source "${{ env.GITHUB_PACKAGES_URL }}" \
-            --name github-xultplay \
-            --username ${{ github.actor }} \
-            --password ${{ secrets.GITHUB_TOKEN }} \
-            --store-password-in-clear-text
+          source-url: ${{ env.GITHUB_PACKAGES_URL }}
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
       - run: dotnet restore ${{ env.SOLUTION }}
