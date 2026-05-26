@@ -1,12 +1,10 @@
 name: Build, Test, and Publish to GitHub Packages
-
 on:
   push:
     branches: [main]
     tags: ['v*']
   pull_request:
     branches: [main]
-
 env:
   DOTNET_VERSION: '8.0.x'
   CONFIGURATION: Release
@@ -14,13 +12,10 @@ env:
   PACKAGE_PROJECT: src/XultPlay.EGS.Contracts/XultPlay.EGS.Contracts.csproj
   ARTIFACTS_DIR: ./artifacts
   GITHUB_PACKAGES_URL: https://nuget.pkg.github.com/xultplay/index.json
-
 permissions:
   contents: read
   packages: write
-
 jobs:
-
   build-and-test:
     name: Build and Test
     runs-on: ubuntu-latest
@@ -29,11 +24,17 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Add GitHub Packages NuGet source
+        run: |
+          dotnet nuget add source "${{ env.GITHUB_PACKAGES_URL }}" \
+            --name github-xultplay \
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            --store-password-in-clear-text
       - run: dotnet restore ${{ env.SOLUTION }}
       - run: dotnet format ${{ env.SOLUTION }} --verify-no-changes --no-restore
       - run: dotnet build ${{ env.SOLUTION }} --configuration ${{ env.CONFIGURATION }} --no-restore -warnaserror
       - run: dotnet test ${{ env.SOLUTION }} --configuration ${{ env.CONFIGURATION }} --no-build
-
   pack-and-publish:
     name: Pack and Publish
     needs: build-and-test
@@ -45,6 +46,13 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Add GitHub Packages NuGet source
+        run: |
+          dotnet nuget add source "${{ env.GITHUB_PACKAGES_URL }}" \
+            --name github-xultplay \
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GITHUB_TOKEN }} \
+            --store-password-in-clear-text
       - id: version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
       - run: dotnet restore ${{ env.SOLUTION }}
